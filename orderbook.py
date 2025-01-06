@@ -34,9 +34,13 @@ class OrderBook:
         return midpoint
 
     def checkOrders(self):
+        """
+        Checks if there are any matches between asks and bids
+        Uses FIFO for queue processing
+        """
 
         self.asks.sort(key=lambda order: (order.price, order.timeIndex))
-        self.bids.sort(key=lambda order: (order.price, order.timeIndex), reverse=True)
+        self.bids.sort(key=lambda order: (-order.price, order.timeIndex),)
 
         for bid in self.bids:
 
@@ -73,6 +77,10 @@ class OrderBook:
         self.bids = [order for order in self.bids if order.quantity != 0]
 
     def display(self):
+        """
+        prints out asks and bids
+        Best used when debugging
+        """
         print()
         for order in self.asks:
             print(order.price , order.quantity)
@@ -81,7 +89,11 @@ class OrderBook:
             print(order.price , order.quantity)
 
     def displayPretty(self):
-
+        """
+        Writes orderbook to command line with colours and nice formatting
+        Also prints orders executed at the top of the page
+        (clears previous outputs so can be annoying when debugging)
+        """
         cleanedAsks = {}
         for ask in self.asks:
             price = ask.price
@@ -127,6 +139,9 @@ class OrderBook:
 
 
     def addOrder(self,order):
+        """
+        Adds order to orderbook and checks for matches
+        """
         if order.type == 'ask':
             self.asks.append(order)
         if order.type == 'bid':
@@ -135,6 +150,10 @@ class OrderBook:
 
 
     def sellLimit(self,order):
+        """
+        Limit order - sell
+        uses FIFO for queue processing
+        """
         if len(self.bids) > 0 and self.bids[0].price >= order.price:
             startTime = time.time()
             limitPrice = order.price
@@ -165,6 +184,10 @@ class OrderBook:
 
 
     def buyLimit(self,order):
+        """
+        Limit order - buy
+        uses FIFO for queue processing
+        """
         if len(self.asks) > 0 and self.asks[-1].price <= order.price:
             self.asks.sort(key=lambda order: (order.price, order.timeIndex))
             startTime = time.time()
@@ -196,6 +219,10 @@ class OrderBook:
             self.asks.sort(key=lambda order: (order.price, order.timeIndex),reverse=True)
 
     def sellMarket(self,order):
+        """
+        Market order - sell
+        uses FIFO for queue processing
+        """
         if len(self.bids) > 0:
             startTime = time.time()
             quantity = order.quantity
@@ -224,6 +251,10 @@ class OrderBook:
             self.priceData.append((avgPrice, endTime))
 
     def buyMarket(self, order):
+        """
+        Market order - buy
+        uses FIFO for queue processing
+        """
         if len(self.asks) > 0:
             self.asks.sort(key=lambda order: (order.price, order.timeIndex))
             startTime = time.time()
